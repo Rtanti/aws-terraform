@@ -36,7 +36,7 @@ resource "aws_launch_configuration" "as_conf" {
   user_data              = file("userdata.sh")
   security_groups        = [aws_security_group.asg-server-web.id]
   associate_public_ip_address = true
-  vpc_classic_link_id              = "vpc-feb37495" 
+ # vpc_classic_link_id              = "vpc-feb37495" 
   #vpc_classic_link_security_groups = [aws_security_group.asg-server-web.id] 
 
   # Save the public IP for testing
