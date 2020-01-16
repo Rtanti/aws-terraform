@@ -28,7 +28,6 @@ resource "aws_instance" "web_server" {
 }
 
 resource "aws_launch_configuration" "as_conf" {
-#  name_prefix   = "terraform-lc-example-"
   name          = "asg-launch-config"
   image_id      = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
@@ -36,20 +35,13 @@ resource "aws_launch_configuration" "as_conf" {
   user_data              = file("userdata.sh")
   security_groups        = [aws_security_group.asg-server-web.id]
   associate_public_ip_address = true
- # vpc_classic_link_id              = "vpc-feb37495" 
-  #vpc_classic_link_security_groups = [aws_security_group.asg-server-web.id] 
 
-  # Save the public IP for testing
-  #provisioner "local-exec" {
-  #  command = "echo ${aws_launch_configuration.as_conf.public_ip} > public-ip.txt"
-  #}
   #connection {
   #  user        = "ubuntu"
     #host       = aws_launch_configuration.as_conf.instance_id
   #  host       = var.asg_server_name.public_ip
   #  private_key = file("~/.ssh/aws-test")
   #}
-
   #provisioner "file" {
   #  source      = "/home/renniet/aws/openpayd/upload"
   #  destination = "/home/ubuntu"
@@ -60,15 +52,16 @@ resource "aws_launch_configuration" "as_conf" {
   }
 }
 
-resource "aws_autoscaling_group" "bar" {
+resource "aws_autoscaling_group" "this" {
   name                 = "terraform-asg-example"
   launch_configuration = aws_launch_configuration.as_conf.name
   min_size             = 2
   desired_capacity     = 2
   max_size             = 10
   vpc_zone_identifier  = ["subnet-183cb154"]
-#  availability_zones   = "us-east-2a"
-
+  health_check_type         = "EC2"
+  health_check_grace_period	= 200
+  wait_for_capacity_timeout = "300s"
   tag  {
    key     = "Name" 
    value   = var.asg_server_name
@@ -79,4 +72,13 @@ resource "aws_autoscaling_group" "bar" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_autoscaling_policy" "bat" {
+  name                   = "asg-pol-terraform-test"
+  scaling_adjustment     = 2
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.this.name
+
 }
