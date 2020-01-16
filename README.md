@@ -8,5 +8,7 @@ Go to https://www.terraform.io/downloads.html and choose the appropriate version
 Then follow the instruction on the website which is to unzip the file. You just need to use the 'terraform' command once it's unzipped.
 
 You can now start using terraform
+
  terraform init
+ 
 This sets up the terraform environment in the directory you are working in, any files saved as .tf will be used to set up your infrastructure.
